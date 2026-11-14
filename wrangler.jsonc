@@ -1,0 +1,58 @@
+{
+    "name": "andexor-net-website-ping",
+    "main": "src/worker.py",
+    "compatibility_date": "2026-10-28",
+    "compatibility_flags": [
+        "python_workers",
+        "python_dedicated_snapshot"
+    ],
+    "vars": {
+        "ALLOWED_ORIGINS": "https://andexor.net,http://localhost:8787"
+    },
+    "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "redact_query_string": false,
+        "logs": {
+            "enabled": true,
+            "head_sampling_rate": 1,
+            "invocation_logs": true,
+            "persist": true
+        },
+        "traces": {
+            "enabled": true,
+            "head_sampling_rate": 1,
+            "persist": true
+        },
+        "issue_detection": {
+            "enabled": true
+        }
+    },
+    "routes": [
+        {
+            "pattern": "andexor.net/api/v1/ping*",
+            "zone_name": "andexor.net"
+        }
+    ],
+    "workers_dev": false,
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "andexor-net-website-ping-prod",
+            "database_id": "6692bea1-048c-42f9-9b57-71970ef86087"
+        }
+    ],
+    "preview_urls": true,
+    "previews": {
+        "vars": {
+            "ALLOWED_ORIGINS": "https://andexor.net,http://localhost:8787"
+        },
+        "d1_databases": [
+            {
+                "binding": "DB",
+                "database_name": "andexor-net-website-ping-prev",
+                "database_id": "5c899f84-6d98-480f-96a5-ece6220edcbd"
+            }
+        ]
+    }
+}

@@ -1,0 +1,101 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Andexor Network, Inc.
+# Author: Ed Jenkins <ed@andexor.net>
+
+# Pull request: deploy to the shared preview, smoke test it (required check).
+# Push to main: the same, then deploy to production and health check it.
+# The preview Worker itself is created once by hand (MANUAL-TASKS.md). This pipeline never creates it.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  PREVIEW_NAME: preview
+  WORKER_NAME: andexor-net-website-ping
+  WORKERS_SUBDOMAIN: andexor
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+jobs:
+  preview:
+    name: Preview and smoke test
+    runs-on: ubuntu-latest
+    # One shared preview: runs take turns so a smoke test never meets a preview another run just overwrote.
+    concurrency:
+      group: preview-environment
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: "22"
+      - uses: astral-sh/setup-uv@v6.0.1
+      - name: Install dependencies
+        run: uv sync
+      - name: Deploy the preview
+        run: uv run pywrangler preview --name "$PREVIEW_NAME"
+      - name: Health check
+        run: |
+          URL="https://${PREVIEW_NAME}-${WORKER_NAME}.${WORKERS_SUBDOMAIN}.workers.dev/api/v1/ping/health"
+          for i in $(seq 1 10); do
+            STATUS=$(curl -s -o health.json --write-out '%{http_code}' "$URL" || true)
+            echo "try $i: status $STATUS"
+            if [ "$STATUS" = "200" ] && grep -q '"ok":[[:space:]]*true' health.json; then
+              cat health.json; echo
+              exit 0
+            fi
+            sleep 3
+          done
+          cat health.json || true
+          echo "Health check failed"
+          exit 1
+      - name: Smoke test (real POST, never retried)
+        run: |
+          URL="https://${PREVIEW_NAME}-${WORKER_NAME}.${WORKERS_SUBDOMAIN}.workers.dev/api/v1/ping"
+          RND=$(printf '%05d' $((RANDOM * 3 % 100000)))
+          STATUS=$(curl -s -D headers.txt -o body.txt --write-out '%{http_code}' -X POST "$URL" \
+            -H "Referer: https://andexor.net/ci-test/${RND}" \
+            -H "Ping-From: https://andexor.net/ci-test/${RND}" \
+            -H "Ping-To: https://example.com/ci-test/${RND}")
+          echo "status: $STATUS"
+          cat headers.txt
+          cat body.txt
+          [ "$STATUS" = "204" ] || { echo "Expected 204"; exit 1; }
+
+  production:
+    name: Deploy to production
+    needs: preview
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: "22"
+      - uses: astral-sh/setup-uv@v6.0.1
+      - name: Install dependencies
+        run: uv sync
+      - name: Deploy to production
+        run: uv run pywrangler deploy
+      - name: Health check (GET only, never POST to production)
+        run: |
+          URL="https://andexor.net/api/v1/ping/health"
+          for i in $(seq 1 10); do
+            STATUS=$(curl -s -o health.json --write-out '%{http_code}' "$URL" || true)
+            echo "try $i: status $STATUS"
+            if [ "$STATUS" = "200" ] && grep -q '"ok":[[:space:]]*true' health.json; then
+              cat health.json; echo
+              exit 0
+            fi
+            sleep 3
+          done
+          cat health.json || true
+          echo "Production health check failed"
+          exit 1

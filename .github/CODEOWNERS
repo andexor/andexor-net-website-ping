@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Andexor Network, Inc.
+# Author: Ed Jenkins <ed@andexor.net>
+
+# Every file in the repo is owned by the "write" team. The ruleset on main requires a review
+# from a code owner, and GitHub requests it automatically from this team on every pull request.
+* @andexor/write

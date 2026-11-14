@@ -55,3 +55,9 @@ Thumbs.db
 # Wrangler
 .wrangler/
 .dev.vars*
+
+# Claude
+.claude/
+
+# Cloudflare CLI cache
+.cloudflare/
