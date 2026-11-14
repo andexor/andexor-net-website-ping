@@ -95,7 +95,7 @@ async def ping(request: Request):
         ping_from = headers.get("ping-from")
         ping_to = headers.get("ping-to")
         await request.scope["env"].DB.prepare(
-            "INSERT INTO pingx (received_at, referer, ping_from, ping_to) VALUES (?, ?, ?, ?)"
+            "INSERT INTO ping (received_at, referer, ping_from, ping_to) VALUES (?, ?, ?, ?)"
         ).bind(
             received_at,
             jsnull if referer is None else referer,
