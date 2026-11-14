@@ -11,7 +11,13 @@ CREATE TABLE IF NOT EXISTS ping (
     received_at TEXT NOT NULL,
     referer     TEXT,
     ping_from   TEXT,
-    ping_to     TEXT
+    ping_to     TEXT,
+    cf_connecting_ip TEXT,
+    cf_ipcountry     TEXT,
+    cf_ray           TEXT,
+    host             TEXT,
+    user_agent       TEXT,
+    x_real_ip        TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_ping_received_at ON ping (received_at);

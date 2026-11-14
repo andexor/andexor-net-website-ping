@@ -115,16 +115,16 @@ These come from constitution Principle IV and research R5. Do not skip them.
 
 - [X] T021 [P] [US5] Create `.github/workflows/ci.yml` per `CICD.md` section 1: trigger on `pull_request` and `push` to `main`; job `Preview and smoke test` installs Node, uv and dependencies, runs `uv run pywrangler preview --name preview`, health-checks `GET /api/v1/ping/health` with 10 tries 3 seconds apart, and POSTs `/api/v1/ping` once with test `Referer`, `Ping-From` and `Ping-To` headers, failing unless the status is exactly 204 and never retrying; job `Deploy to production` has `needs`, runs only on push to `main`, runs `uv run pywrangler deploy`, then a GET-only health check on `https://andexor.net/api/v1/ping/health`. Use a job-level `concurrency` group `preview-environment` with no cancelling, `PREVIEW_NAME=preview`, secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, and action versions pinned and at least a week old. Add the SPDX header.
 - [X] T022 [P] [US5] Create `.github/dependabot.yml` with the `uv` ecosystem enabled (CICD.md "Dependabot"). Add the SPDX header.
-- [ ] T023 [US5] After the owner completes `MANUAL-TASKS.md` Step 2, run quickstart scenarios 7 and 8: confirm no test rows in the production database, run the negative test, and record the throwaway PR number in `CICD.md` section 4.
+- [X] T023 [US5] After the owner completes `MANUAL-TASKS.md` Step 2, run quickstart scenarios 7 and 8: confirm no test rows in the production database, run the negative test, and record the throwaway PR number in `CICD.md` section 4.
 
 ---
 
 ## Phase 8: Polish
 
-- [ ] T024 [P] Update `CLAUDE.md` Status and CI lines to match what now exists, and `README.md` if the commands changed.
-- [ ] T025 [P] Change the VERIFY items in `specs/001-click-ping-logging/research.md` (R2, R3, R8) to their confirmed results.
-- [ ] T026 After asking the owner to confirm (it deletes preview data only), run `./preview-delete.sh` and then `./preview-create.sh` and the manual preview Worker step from `MANUAL-TASKS.md`, to prove the teardown and rebuild both work. Confirm `./preview-delete.sh` refuses to touch the production database.
-- [ ] T027 Final checks: grep every new or changed file for typographic quotes, confirm the SPDX header on `src/worker.py`, `.github/workflows/ci.yml` and `.github/dependabot.yml`, and run all quickstart scenarios once end to end.
+- [X] T024 [P] Update `CLAUDE.md` Status and CI lines to match what now exists, and `README.md` if the commands changed.
+- [X] T025 [P] Change the VERIFY items in `specs/001-click-ping-logging/research.md` (R2, R3, R8) to their confirmed results.
+- [X] T026 After asking the owner to confirm (it deletes preview data only), run `./preview-delete.sh` and then `./preview-create.sh` and the manual preview Worker step from `MANUAL-TASKS.md`, to prove the teardown and rebuild both work. Confirm `./preview-delete.sh` refuses to touch the production database.
+- [X] T027 Final checks: grep every new or changed file for typographic quotes, confirm the SPDX header on `src/worker.py`, `.github/workflows/ci.yml` and `.github/dependabot.yml`, and run all quickstart scenarios once end to end.
 
 ---
 

@@ -25,6 +25,21 @@ from workers import asgi
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ping")
 
+# The request headers that are stored, as (header name, column name). Storing and logging are both
+# derived from this tuple, so a header cannot be logged without being stored and every other header
+# is left out of the log without being named.
+STORED_HEADERS = (
+    ("referer", "referer"),
+    ("ping-from", "ping_from"),
+    ("ping-to", "ping_to"),
+    ("cf-connecting-ip", "cf_connecting_ip"),
+    ("cf-ipcountry", "cf_ipcountry"),
+    ("cf-ray", "cf_ray"),
+    ("host", "host"),
+    ("user-agent", "user_agent"),
+    ("x-real-ip", "x_real_ip"),
+)
+
 app = FastAPI()
 
 
@@ -79,7 +94,7 @@ async def ping(request: Request):
         return JSONResponse({"ok": False}, status_code=500)
 
     try:
-        logger.info(json.dumps(headers, ensure_ascii=False))
+        logger.info(json.dumps({name: headers[name] for name, _ in STORED_HEADERS if name in headers}, ensure_ascii=False))
     except Exception as e:
         logger.error(f"ping_error step=log_headers error={type(e).__name__}: {e} line={e.__traceback__.tb_lineno}")
         return JSONResponse({"ok": False}, status_code=500)
@@ -91,17 +106,12 @@ async def ping(request: Request):
         return JSONResponse({"ok": False}, status_code=500)
 
     try:
-        referer = headers.get("referer")
-        ping_from = headers.get("ping-from")
-        ping_to = headers.get("ping-to")
+        columns = ", ".join(column for _, column in STORED_HEADERS)
+        marks = ", ".join("?" for _ in STORED_HEADERS)
+        values = [jsnull if headers.get(name) is None else headers[name] for name, _ in STORED_HEADERS]
         await request.scope["env"].DB.prepare(
-            "INSERT INTO ping (received_at, referer, ping_from, ping_to) VALUES (?, ?, ?, ?)"
-        ).bind(
-            received_at,
-            jsnull if referer is None else referer,
-            jsnull if ping_from is None else ping_from,
-            jsnull if ping_to is None else ping_to,
-        ).run()
+            f"INSERT INTO ping (received_at, {columns}) VALUES (?, {marks})"
+        ).bind(received_at, *values).run()
     except Exception as e:
         logger.error(f"ping_error step=db_insert error={type(e).__name__}: {e} line={e.__traceback__.tb_lineno}")
         return JSONResponse({"ok": False}, status_code=500)

@@ -19,7 +19,7 @@ Run against the preview first (`NAME=preview`, URL `https://preview-andexor-net-
    Expect 204 and no body. Then `uv run scripts/query_db.py --preview` shows one new row with all
    four fields filled. Then send a second POST with no `Ping-*` headers: expect 204 and a row
    whose missing fields are NULL (research R3).
-4. **Header log (US1)**: in the Worker logs, find one JSON line with every request header.
+4. **Header log (US1)**: in the Worker logs, find one JSON line with the stored request headers only (see `specs/002-capture-request-headers/`).
 5. **CORS (US2)**:
    `curl -si -X OPTIONS $URL/api/v1/ping -H 'Origin: https://andexor.net'` returns 204 with the
    origin echoed. Repeat with `-H 'Origin: https://evil.example'` and expect `https://andexor.net`.

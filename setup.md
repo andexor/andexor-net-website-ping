@@ -112,6 +112,14 @@ Checks the preview and production health endpoints.
 
 > Run `health.sh`
 
+## Add new columns to an existing database
+
+A database made by `create_db.py` or `preview-create.sh` already has every column. For a database
+made earlier, this adds the columns that are missing and changes nothing else. It is safe to run
+more than once. Add `--preview` for the preview database.
+
+> Run `uv run scripts/migrate_db.py`
+
 ## View the logged pings
 
 Prints every row in the production table as JSON. Add `--preview` for the preview table.

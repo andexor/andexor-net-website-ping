@@ -54,11 +54,20 @@ jq -e . "${WRANGLER_FILE}" > /dev/null 2>&1 || {
 # Names come from the project config, so this script works unchanged in other projects.
 BINDING=$(jq -r '.d1_databases[0].binding' "${WRANGLER_FILE}")
 PROD_DB_NAME=$(jq -r '.d1_databases[0].database_name' "${WRANGLER_FILE}")
-PREVIEW_DB_NAME=$(jq -r '.previews.d1_databases[0].database_name' "${WRANGLER_FILE}")
+PREVIEW_DB_NAME=$(jq -r '.previews.d1_databases[0].database_name // empty' "${WRANGLER_FILE}")
 
 if [[ -z "${PROD_DB_NAME}" || "${PROD_DB_NAME}" == "null" ]]; then
     echo "error: no d1_databases entry in ${WRANGLER_FILE}" >&2
     exit 1
+fi
+
+# After preview-delete.sh the previews block is gone, so derive the name from the production one.
+if [[ -z "${PREVIEW_DB_NAME}" ]]; then
+    if [[ "${PROD_DB_NAME}" != *-prod ]]; then
+        echo "error: cannot derive the preview database name from ${PROD_DB_NAME} (it does not end in -prod)" >&2
+        exit 1
+    fi
+    PREVIEW_DB_NAME="${PROD_DB_NAME%-prod}-prev"
 fi
 
 # 1. Find or create the preview database.

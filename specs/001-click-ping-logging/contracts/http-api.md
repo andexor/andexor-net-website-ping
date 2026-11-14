@@ -7,15 +7,15 @@ Base: `https://andexor.net` (production), `https://preview-andexor-net-website-p
 
 Records one click.
 
-**Request headers used**: `Referer`, `Ping-From`, `Ping-To` (all optional). Every other header is
-logged and ignored. A request body is ignored.
+**Request headers used**: `Referer`, `Ping-From`, `Ping-To` (all optional), plus the six headers added by
+`specs/002-capture-request-headers/`. Every other header is ignored and not logged. A request body is ignored.
 
 | Result | Status | Body |
 |---|---|---|
 | Recorded | 204 | none |
 | Any failure | 500 | `{"ok": false}` |
 
-**Side effects**: one row in `ping` (see [data-model.md](../data-model.md)). One log line holding all
+**Side effects**: one row in `ping` (see [data-model.md](../data-model.md)). One log line holding the stored
 request headers as a single JSON object.
 
 ## OPTIONS /api/v1/ping
@@ -56,6 +56,6 @@ Nothing about the error appears in the response.
 | `read_config` | Reading `ALLOWED_ORIGINS` from the Worker environment (middleware) |
 | `cors_origin` | Matching the `Origin` header and setting the CORS response headers (middleware) |
 | `read_headers` | Copying the request headers in `POST /api/v1/ping` |
-| `log_headers` | Writing every request header to the log as one JSON line |
+| `log_headers` | Writing the stored request headers to the log as one JSON line |
 | `make_timestamp` | Building `received_at` |
-| `db_insert` | Reading the three headers and inserting the row into D1 |
+| `db_insert` | Reading the stored headers and inserting the row into D1 |
