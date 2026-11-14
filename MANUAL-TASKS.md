@@ -68,8 +68,8 @@ The Worker for this feature writes six new columns. CI cannot add them, because 
 D1 permission. The change only adds nullable columns, so the Worker that is in production now
 keeps working in between. Do these in order.
 
-- [ ] **Before opening the pull request**, add the columns to the preview database:
+- [X] **Before opening the pull request**, add the columns to the preview database:
   `uv run scripts/migrate_db.py --preview`
-- [ ] **Before merging the pull request**, add the columns to the production database. It prints
+- [X] **Before merging the pull request**, add the columns to the production database. It prints
   which columns it added, and a second run prints that there is nothing to add:
   `uv run scripts/migrate_db.py`

@@ -19,8 +19,8 @@ wheels = [{ url = "https://files.pythonhosted.org/packages/a9/16/7757fb84c819acc
 
 [[packages]]
 name = "fastapi"
-version = "0.162.0"
-wheels = [{ url = "https://files.pythonhosted.org/packages/b4/4f/3f2c25c9b43970b5e9a08beb5e04776247edea684ddc0930f4f02f0bb6cb/fastapi-0.162.0-py3-none-any.whl", upload-time = 2026-10-23T18:47:31Z, size = 148912, hashes = { sha256 = "3785963de305dd09912426cb81f2d230fce98ab3521cdfe97265c8d14983128c" } }]
+version = "0.162.2"
+wheels = [{ url = "https://files.pythonhosted.org/packages/d6/fb/0dc0f819163bc6b7f9e6802d7d0b1ac180fbbe4e75dbd10655c6a4d77796/fastapi-0.162.2-py3-none-any.whl", upload-time = 2026-11-07T15:41:38Z, size = 151671, hashes = { sha256 = "d0584f9662317e01140df94c64f4bed1d8b059fe35496e30c9c92f70e6e5ff15" } }]
 
 [[packages]]
 name = "idna"
@@ -31,6 +31,16 @@ wheels = [{ url = "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a
 name = "opentelemetry-api"
 version = "1.45.2"
 wheels = [{ url = "https://files.pythonhosted.org/packages/a9/2d/610db864d7513158cebb8f36cc88e67e73bd6c7aa1905ef18d89e1281c81/opentelemetry_api-1.45.2-py3-none-any.whl", upload-time = 2026-10-29T17:29:06Z, size = 60335, hashes = { sha256 = "2cbd737377e710ee740d261c94e93fa0f08e6d037c18f17513cc0a2d94479a34" } }]
+
+[[packages]]
+name = "pip-licenses"
+version = "5.5.5"
+wheels = [{ url = "https://files.pythonhosted.org/packages/2a/9a/6acfdb8d463eac7cdae7534d35d72237eca63f5fbafe797289d8a5fae447/pip_licenses-5.5.5-py3-none-any.whl", upload-time = 2026-03-28T22:12:54Z, size = 23247, hashes = { sha256 = "f4c4c6d9e6a03612cf59f29f19dc8ab54904d82e055b8e191498f2279a224e14" } }]
+
+[[packages]]
+name = "prettytable"
+version = "3.18.0"
+wheels = [{ url = "https://files.pythonhosted.org/packages/fe/be/2e6798ace5cc036f5d05d36b7b2fd85346f1a708c87060890b070d0ec607/prettytable-3.18.0-py3-none-any.whl", upload-time = 2026-06-22T16:07:48Z, size = 37357, hashes = { sha256 = "b3346e0e6f79180833aebaac088ae926340586cf6d7d991b9eb125b65f72313a" } }]
 
 [[packages]]
 name = "pydantic"
@@ -61,6 +71,11 @@ wheels = [{ url = "https://files.pythonhosted.org/packages/49/d3/b8441a820a491dd
 name = "typing-inspection"
 version = "0.4.5"
 wheels = [{ url = "https://files.pythonhosted.org/packages/de/0c/ea2544850a7c135e15033a5c7a8e7211136184b7ae63e2239d557c2b3019/typing_inspection-0.4.5-py3-none-any.whl", upload-time = 2026-11-04T14:13:22Z, size = 14874, hashes = { sha256 = "bc210535442b39e1bf2805e0c7a17dfd6a4ace760c84c7f7d16245d23a6b1c39" } }]
+
+[[packages]]
+name = "wcwidth"
+version = "0.9.4"
+wheels = [{ url = "https://files.pythonhosted.org/packages/6f/0c/309b1813b230d1dbbd6f2c2ab2bb21ef68992358977605d9ef289bbfedcc/wcwidth-0.9.4-py3-none-any.whl", upload-time = 2026-10-24T18:10:52Z, size = 301806, hashes = { sha256 = "901eace6d2dd25ebb917d0ce5db18e5c537e1504c905cf32f0d006c12098b05d" } }]
 
 [[packages]]
 name = "workers-runtime-sdk"
