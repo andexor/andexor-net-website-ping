@@ -71,7 +71,7 @@ marked [P] and tasks run in order. US1 is the type fixes. US2 is proving behavio
 
 - [X] T011 Check `README.md`, `setup.md`, and `CICD.md` for any mention of the log line format and keep them consistent with the spec (the format is unchanged when a traceback exists)
 - [X] T012 Search the changed and new files for typographic quotes and confirm none
-- [ ] T013 Commit on branch `7-fix-pylance-errors`, push, and open a PR that closes #7 with `--assignee ejenkins` and a review request to `andexor/write`
+- [X] T013 Commit on branch `7-fix-pylance-errors`, push, and open a PR that closes #7 with `--assignee ejenkins` and a review request to `andexor/write`
 
 ---
 
