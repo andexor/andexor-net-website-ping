@@ -15,6 +15,7 @@ Step names: read_config, read_headers, log_headers, make_timestamp, db_insert, c
 
 import json
 import logging
+from collections.abc import Awaitable, Callable
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
@@ -44,7 +45,7 @@ app = FastAPI()
 
 
 @app.middleware("http")
-async def load_config(request: Request, call_next):
+async def load_config(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
     try:
         request.state.allowed_origins = [
             origin.strip()
@@ -52,25 +53,27 @@ async def load_config(request: Request, call_next):
             if origin.strip()
         ]
     except Exception as e:
-        logger.error(f"ping_error step=read_config error={type(e).__name__}: {e} line={e.__traceback__.tb_lineno}")
+        line = f" line={e.__traceback__.tb_lineno}" if e.__traceback__ else ""
+        logger.error(f"ping_error step=read_config error={type(e).__name__}: {e}{line}")
         return JSONResponse({"ok": False}, status_code=500)
     return await call_next(request)
 
 
 @app.middleware("http")
-async def cors(request: Request, call_next):
+async def cors(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
     response = await call_next(request)
     allowed_origins = getattr(request.state, "allowed_origins", None)
     if not allowed_origins:
         return response
     try:
         origin = request.headers.get("origin")
-        response.headers["Access-Control-Allow-Origin"] = origin if origin in allowed_origins else allowed_origins[0]
+        response.headers["Access-Control-Allow-Origin"] = origin if origin is not None and origin in allowed_origins else allowed_origins[0]
         response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type"
         response.headers["Vary"] = "Origin"
     except Exception as e:
-        logger.error(f"ping_error step=cors_origin error={type(e).__name__}: {e} line={e.__traceback__.tb_lineno}")
+        line = f" line={e.__traceback__.tb_lineno}" if e.__traceback__ else ""
+        logger.error(f"ping_error step=cors_origin error={type(e).__name__}: {e}{line}")
         return JSONResponse({"ok": False}, status_code=500)
     return response
 
@@ -90,19 +93,22 @@ async def ping(request: Request):
     try:
         headers = dict(request.headers)
     except Exception as e:
-        logger.error(f"ping_error step=read_headers error={type(e).__name__}: {e} line={e.__traceback__.tb_lineno}")
+        line = f" line={e.__traceback__.tb_lineno}" if e.__traceback__ else ""
+        logger.error(f"ping_error step=read_headers error={type(e).__name__}: {e}{line}")
         return JSONResponse({"ok": False}, status_code=500)
 
     try:
         logger.info(json.dumps({name: headers[name] for name, _ in STORED_HEADERS if name in headers}, ensure_ascii=False))
     except Exception as e:
-        logger.error(f"ping_error step=log_headers error={type(e).__name__}: {e} line={e.__traceback__.tb_lineno}")
+        line = f" line={e.__traceback__.tb_lineno}" if e.__traceback__ else ""
+        logger.error(f"ping_error step=log_headers error={type(e).__name__}: {e}{line}")
         return JSONResponse({"ok": False}, status_code=500)
 
     try:
         received_at = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
     except Exception as e:
-        logger.error(f"ping_error step=make_timestamp error={type(e).__name__}: {e} line={e.__traceback__.tb_lineno}")
+        line = f" line={e.__traceback__.tb_lineno}" if e.__traceback__ else ""
+        logger.error(f"ping_error step=make_timestamp error={type(e).__name__}: {e}{line}")
         return JSONResponse({"ok": False}, status_code=500)
 
     try:
@@ -113,7 +119,8 @@ async def ping(request: Request):
             f"INSERT INTO ping (received_at, {columns}) VALUES (?, {marks})"
         ).bind(received_at, *values).run()
     except Exception as e:
-        logger.error(f"ping_error step=db_insert error={type(e).__name__}: {e} line={e.__traceback__.tb_lineno}")
+        line = f" line={e.__traceback__.tb_lineno}" if e.__traceback__ else ""
+        logger.error(f"ping_error step=db_insert error={type(e).__name__}: {e}{line}")
         return JSONResponse({"ok": False}, status_code=500)
 
     return Response(status_code=204)
