@@ -8,3 +8,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # uv only resolves packages older than a week (exclude-newer in pyproject.toml), so Dependabot
+    # must not propose anything newer.
+    cooldown:
+      default-days: 7

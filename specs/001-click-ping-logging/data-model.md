@@ -12,13 +12,14 @@ One table, `ping`, in each of the two D1 databases (preview and production). The
 | `referer` | TEXT | No | Request header `Referer` |
 | `ping_from` | TEXT | No | Request header `Ping-From` |
 | `ping_to` | TEXT | No | Request header `Ping-To` |
+| `cf_connecting_ip`, `cf_ipcountry`, `cf_ray`, `host`, `user_agent`, `x_real_ip` | TEXT | No | Added by `specs/002-capture-request-headers/`. Not indexed |
 
 **Rules**
 - A header that is absent is stored as NULL. A header that is present is stored exactly as received,
   with no trimming or validation (FR-016).
 - Rows are never updated or deleted by the service. Identical rows are allowed (FR-004).
 - Indexes, all non-unique: `received_at`, `referer`, `ping_from`, `ping_to` (FR-005). `id` is
-  indexed as the primary key.
+  indexed as the primary key. The six later columns are not indexed.
 - No relationships to other tables. No state transitions.
 
 ## Environment

@@ -88,7 +88,9 @@ documentation and are checked during implementation (see [quickstart.md](./quick
   not by the pipeline.
 - **Rationale**: Already built and documented in `CICD.md`. The user asked that the pipeline not
   create the preview Worker.
-- **VERIFY**: that `pywrangler preview` works against an existing Worker with the `previews` block.
+- **Verified 2026-11-14 (T025)**: `uv run pywrangler preview --name preview` updates the existing
+  preview Worker and the `previews` block supplies its vars and D1 binding. It works by hand and in
+  CI.
 
 ## R9. Testing approach
 

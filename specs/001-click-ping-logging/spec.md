@@ -35,9 +35,10 @@ arrival time, referrer, link source, and link target filled in.
    service, **Then** a record is still stored, with the missing details left empty.
 3. **Given** two pings with identical details, **When** both reach the service, **Then** two
    separate records are stored.
-4. **Given** any ping, **When** it reaches the service, **Then** the names and values of every
-   header on the request are written to the service log as one JSON object, without added escape
-   characters.
+4. **Given** any ping, **When** it reaches the service, **Then** the names and values of the
+   request headers that are stored in the database are written to the service log as one JSON
+   object, without added escape characters, and no other header is logged (amended by
+   `specs/002-capture-request-headers/`).
 
 ---
 
@@ -154,9 +155,13 @@ appears in the preview data store and not in the production data store.
   source, and link target MUST be optional. A missing detail MUST be stored as an empty (NULL) value.
 - **FR-004**: Each record MUST be stored separately, and identical details MUST NOT be merged or
   rejected.
-- **FR-005**: Every stored column MUST be searchable efficiently and MUST allow duplicate values.
-- **FR-006**: For each ping the service MUST write the names and values of all request headers to
-  the service log as one JSON object, without added escape characters.
+- **FR-005**: The arrival time, `referer`, `ping_from`, and `ping_to` columns MUST be searchable
+  efficiently and MUST allow duplicate values. The columns added by
+  `specs/002-capture-request-headers/` are not indexed.
+- **FR-006**: For each ping the service MUST write the names and values of the request headers
+  that are stored in the database to the service log as one JSON object, without added escape
+  characters. Every other header MUST be left out (amended by
+  `specs/002-capture-request-headers/`).
 - **FR-007**: The service MUST answer a preflight request at `OPTIONS /api/v1/ping` with HTTP 204.
 - **FR-008**: The service MUST echo the request's `Origin` in the allowed-origin answer when it is
   on the configured list (`https://andexor.net`, `http://localhost:8787`), and otherwise MUST answer
@@ -187,7 +192,9 @@ appears in the preview data store and not in the production data store.
 ### Key Entities
 
 - **Ping record**: One reported link click. Attributes: identifier (required, unique), arrival time
-  (required, UTC), referrer (optional), link source (optional), link target (optional). Records are
+  (required, UTC), referrer (optional), link source (optional), link target (optional), and six more optional
+  attributes added by `specs/002-capture-request-headers/` (client address, client country,
+  request identifier, requested host, browser identification, forwarded client address). Records are
   independent of each other. More attributes may be added after testing begins.
 - **Environment**: Either preview or production. Each has its own address, its own list of allowed
   origins, and its own ping data store. Records never move between environments.
@@ -211,10 +218,10 @@ appears in the preview data store and not in the production data store.
 
 ## Assumptions
 
-- During limited initial testing the service logs every request header, including `Cookie`,
-  `Authorization`, and client-address headers, on purpose. The logs will be examined by hand to
-  decide which other headers belong in the database, and the logging will then be trimmed down.
-  Until then, treat the service logs as sensitive. Cloudflare sets the retention of these logs by
+- During limited initial testing the service logged every request header, including `Cookie`,
+  `Authorization`, and client-address headers, on purpose, to decide which headers belong in the
+  database. That ended with `specs/002-capture-request-headers/`: the log now holds only the stored
+  headers. Treat the service logs as sensitive anyway, because they hold client addresses. Cloudflare sets the retention of these logs by
   plan and it cannot be configured. The account is on Workers Paid, so logs are kept for 7 days
   (the maximum).
 - The website will be changed separately to list the service address in the `ping` attribute of

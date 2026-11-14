@@ -109,8 +109,8 @@ creates or queries the database directly. Set an expiry. Do not use IP filtering
 
 ### Logs
 Observability and traces are enabled in `wrangler.jsonc`. The Worker's logs hold the error detail
-(the error name and description, per the constitution's error rule), and the full set of request headers for
-every ping. CI output only says that a call failed and with which status.
+(the error name and description, per the constitution's error rule), and one line with the stored request headers
+for every ping. CI output only says that a call failed and with which status.
 
 ## 3. This repo
 
@@ -146,7 +146,7 @@ every ping. CI output only says that a call failed and with which status.
 Run this once on a throwaway PR after the ruleset exists: put a wrong table name in the insert,
 and confirm the health check passes, the POST returns 500, `Preview and smoke test` goes red,
 `Deploy to production` is skipped, and the PR shows as blocked. Revert the change and confirm it
-turns green. Record the PR number here when done.
+turns green. Done on throwaway PR #3 (2026-11-14): health passed, the POST returned 500, the check went red, production deploy was skipped, the PR was BLOCKED, and the revert turned it green.
 
 ## 5. Checklist for another repo
 

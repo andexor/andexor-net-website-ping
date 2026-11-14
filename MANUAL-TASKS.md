@@ -8,7 +8,8 @@ Author: Ed Jenkins <ed@andexor.net>
 
 Everything not listed here is automated by a committed script or by the CI workflow. The manual
 work is batched into two steps. Do Step 1 once, before the first pull request. Do Step 2 once,
-after the first pull request has run the workflow. Background for each item is in
+after the first pull request has run the workflow. Step 3 is a one-time database change for the
+request headers feature. Background for each item is in
 [CICD.md](./CICD.md).
 
 ## Step 1: Before the first pull request
@@ -54,9 +55,21 @@ appears in the ruleset picker after it has run once. Then do all of these togeth
 
 - [X] **Make sure Workers Builds is not connected** to the `andexor-net-website-ping` Worker in the
   Cloudflare dashboard. If it is, disconnect it. Otherwise every push to `main` deploys twice.
-- [ ] **Create the ruleset** `andexor-default-ruleset` on `main` with the rules in
+- [X] **Create the ruleset** `andexor-default-ruleset` on `main` with the rules in
   [CICD.md](./CICD.md) section 1, including the required check `Preview and smoke test`.
-- [ ] **Run the negative test** on a throwaway PR, as described in [CICD.md](./CICD.md) section 4,
+- [X] **Run the negative test** on a throwaway PR, as described in [CICD.md](./CICD.md) section 4,
   and record the PR number there.
-- [ ] **Delete stray previews** by name, if any exist:
+- [X] **Delete stray previews** by name, if any exist:
   `cf previews delete <name> --worker andexor-net-website-ping --force`
+
+## Step 3: Database change for the request headers feature (issue #4)
+
+The Worker for this feature writes six new columns. CI cannot add them, because its token has no
+D1 permission. The change only adds nullable columns, so the Worker that is in production now
+keeps working in between. Do these in order.
+
+- [ ] **Before opening the pull request**, add the columns to the preview database:
+  `uv run scripts/migrate_db.py --preview`
+- [ ] **Before merging the pull request**, add the columns to the production database. It prints
+  which columns it added, and a second run prints that there is nothing to add:
+  `uv run scripts/migrate_db.py`
