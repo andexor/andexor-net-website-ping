@@ -8,19 +8,9 @@ Author: Ed Jenkins <ed@andexor.net>
 
 Most projects have certain pre-requisites that are required for development, testing, or running in production. Install the ones that are needed.
 
-## Bun
-
-For projects written in TypeScript, use Bun for package management, builds, and execution.
-Install it with this script.
-
-> Run `install-bun.sh`
-
 ## NodeJS
 
-I like to use Bun for best performance.
-Cloudflare does not support Bun. It uses NodeJS.
-For static websites, you can build with Bun and deploy to Cloudflare.
-So you should have both deployed.
+Some tools might require NodeJS.
 
 The following script was copied from
 [Node.js — Download Node.js®](https://nodejs.org/en/download/current).
@@ -42,16 +32,9 @@ The following script was copied from
 
 > `npm -v`
 
-## Docker
+### Upgrade to the latest Node
 
-For projects that are built in Docker or run in Docker, you need to have Docker properly installed.
-
-> Run `install-docker.sh`
-
-This script requires a reboot, so the system will be rebooted automatically.
-After rebooting, run this to verify that it is working:
-
-> Run `docker run hello-world`
+> `nvm use --lts`
 
 ## Spec Kit
 
@@ -62,95 +45,75 @@ If you have not installed uv yet, install it first.
 > Run `install-uv.sh`<br/>
 > Run `install-spec-kit.sh`
 
-## License Checker
-
-> Run `bunx license-checker-rseidelsohn`
-
-## Playwright System Dependencies
-
-> Run `bunx playwright install-deps webkit`
-
-Here are some additional optional dependencies
-you can install if you want, but Firefox is low priority,
-so it is not included by default.
-
-> Run `bunx playwright install firefox`<br/>
-> Run `bunx playwright install-deps firefox`
-
-Likewise, if you want to run tests for iPhone and iPad,
-you can install these optional dependencies.
-This hangs on my current development machine,
-so they are not included by default at this time.
-In the mean time, I use the device browser
-in Chrome Dev Tools.
-
-> Run `bunx playwright install webkit`<br/>
-> Run `bunx playwright install-deps webkit`
-
-## FontAwesome
-
-Front-end applications may use FontAwesome icons.
-The packages are added by setup.sh.
-The Duotone icons are Font Awesome Pro,
-used under a commercial annual
-subscription held by Andexor Network, Inc.
-
-- Purchased: 08/25/2026.
-- Expires, or must be renewed: 08/25/2027. Renew before that date and update the expiration date here. After it lapses, a new install of the Pro icons fails, and so does the build.
-- The license file is `.npmrc`. It is excluded from GitHub by `.gitignore`. `build.sh` passes it to the Docker builder stage as a BuildKit secret, so it is not stored in the image.
-
-## Higgsfield
-
-Front-end applications may use Higgsfield skills to create images and videos with AI.
-
-To install them,
-
-> Run `install-higgsfield.sh`
-
-Then
-
-> Run `./setup.sh`
-
 ## Cloudflare Workers
 
-Applications may be deployed to Cloudflare Workers.
-
-> Run `bunx wrangler login`
-
-Then `bun run deploy`. See the README for the commands.
-
-### www redirect
-
-The Worker answers only at andexor.net (a Custom Domain matches the exact hostname).
-A zone Redirect Rule, created once on 2026-10-22 and independent of the Worker,
-sends www.andexor.net to andexor.net with a 301, keeping the path and query string.
-The proxied www DNS record stays so Cloudflare can answer. To recreate the rule:
-
-> Run `cf rulesets entrypoint update http_request_dynamic_redirect --zone andexor.net --body '{"name":"Redirect rules","rules":[{"ref":"redirect_www_to_root","description":"Redirect www.andexor.net to andexor.net","expression":"(http.host eq \"www.andexor.net\")","action":"redirect","action_parameters":{"from_value":{"target_url":{"expression":"concat(\"https://andexor.net\", http.request.uri.path)"},"status_code":301,"preserve_query_string":true}}}]}'`
+This service is deployed to Cloudflare Workers.
 
 If you do not have Cloudflare installed and integrated with Claude Code,
-then open Claud Code and paste this text into the prompt.
+then open Claude Code and paste this text into the prompt.
 
 > Fetch and execute the appropriate instructions<br/>
 > to set me up for Cloudflare from<br/>
 > https://developers.cloudflare.com/agent-setup/prompt.md
 
-This will install everything but the CLI. I told Claude Code this:
-
-> Install the CLI, using bun instead of npm.
-
-Then I told him to create a BASH script that I can run every time the CLI gets updated.
-He created install-cf.sh.
-
-The Cloudflare CLI, `cf`, is installed globally with Bun.
-Its launcher expects Node, which is not installed,
-so the script wraps it to run with Bun.
-Run the same script again to upgrade `cf`;
-a plain `bun install -g cf` undoes the wrappers.
-
-> Run `install-cf.sh`
-
-Then log in. Use the browser-callback flow, not the default device-code flow: under Bun the device-code polling
-stops after about forty seconds and the command hangs silently, so an approval made after that is never seen.
+Then log in. Use the browser-callback flow, not the default device-code flow.
 
 > Run `cf auth login --no-device`
+
+## Install dependencies
+
+> Run `uv sync`
+
+## Create the production database
+
+This only needs to be done once. It creates the D1 database `andexor-net-website-ping-prod`,
+creates the `ping` table from `schema.sql`, and writes the `database_id` into `wrangler.jsonc`.
+Commit the change to `wrangler.jsonc`.
+
+> Run `uv run scripts/create_db.py`
+
+## Create the preview environment
+
+This only needs to be done once.
+
+> Run `preview-create.sh`
+
+## Delete the preview environment
+
+This is not to be done for every test.
+The environment should remain as long as the production environment remains.
+This script is only provided in case decommissioning is needed later.
+
+> Run `preview-delete.sh`
+
+## Test the preview environment
+
+This may be done anytime a test is needed.
+
+> Run `preview-test.sh`
+
+## Run locally
+
+This runs the Worker with `pywrangler preview`. It is not a local-only server,
+so it needs the preview database from "Create the preview environment".
+
+> Run `run.sh`
+
+## Deploy to production
+
+CI deploys production after a merge to `main`. See [CICD.md](./CICD.md).
+This script is for a manual deploy. It also warms up the database connection.
+
+> Run `deploy.sh`
+
+## Check health
+
+Checks the preview and production health endpoints.
+
+> Run `health.sh`
+
+## View the logged pings
+
+Prints every row in the production table as JSON. Add `--preview` for the preview table.
+
+> Run `uv run scripts/query_db.py`
