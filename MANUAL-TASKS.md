@@ -36,12 +36,12 @@ cannot finish until the first Worker skeleton exists. The implementation tasks p
   `./preview-test.sh`
   `./preview-create.sh --enable-preview-urls`
   Check the preview URL answers: `./health.sh`
-- [ ] **Commit the `wrangler.jsonc` changes** from the two scripts above (the `database_id` values).
-- [ ] **Create the Cloudflare API token** in the dashboard (Account API token, unique to this repo,
+- [X] **Commit the `wrangler.jsonc` changes** from the two scripts above (the `database_id` values).
+- [X] **Create the Cloudflare API token** in the dashboard (Account API token, unique to this repo,
   with an expiry, no IP filtering):
   - Account > Workers Scripts > Edit
   - Zone > Workers Routes > Edit, limited to the `andexor.net` zone
-- [ ] **Add the secrets** to `andexor/andexor-net-website-ping`, in **both** Settings > Secrets and
+- [X] **Add the secrets** to `andexor/andexor-net-website-ping`, in **both** Settings > Secrets and
   variables > Actions **and** the Dependabot list:
   - `CLOUDFLARE_API_TOKEN` (the token above)
   - `CLOUDFLARE_ACCOUNT_ID` = `89df54b7a586cd4489e7a8bc6cd5145d`
@@ -52,7 +52,7 @@ cannot finish until the first Worker skeleton exists. The implementation tasks p
 Open the first pull request (the one that adds `.github/workflows/ci.yml`). A required check only
 appears in the ruleset picker after it has run once. Then do all of these together.
 
-- [ ] **Make sure Workers Builds is not connected** to the `andexor-net-website-ping` Worker in the
+- [X] **Make sure Workers Builds is not connected** to the `andexor-net-website-ping` Worker in the
   Cloudflare dashboard. If it is, disconnect it. Otherwise every push to `main` deploys twice.
 - [ ] **Create the ruleset** `andexor-default-ruleset` on `main` with the rules in
   [CICD.md](./CICD.md) section 1, including the required check `Preview and smoke test`.

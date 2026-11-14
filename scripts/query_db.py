@@ -30,7 +30,12 @@ def main() -> None:
     )
     if result.returncode != 0:
         sys.exit(f"error: cf d1 query failed: {result.stderr.strip()}")
-    print(result.stdout.strip())
+    try:
+        statements = json.loads(result.stdout)
+    except json.JSONDecodeError as e:
+        sys.exit(f"error: cf d1 query did not return JSON: {e}")
+    rows = [row for statement in statements for row in statement["results"]]
+    print(json.dumps(rows, indent=2))
 
 
 if __name__ == "__main__":

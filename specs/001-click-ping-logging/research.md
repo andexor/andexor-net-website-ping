@@ -19,8 +19,9 @@ documentation and are checked during implementation (see [quickstart.md](./quick
   `env` if the short form does not expose it.
 - **Alternatives**: Raw `WorkerEntrypoint.fetch` without FastAPI. Rejected, because FastAPI is
   already a dependency and gives routing and method handling for free.
-- **VERIFY**: that the D1 binding is reachable from route handlers as `request.scope["env"].DB`
-  with the short form.
+- **Verified 2026-11-14 (T006)**: with the short form, `request.scope["env"].DB.prepare(sql).run()`
+  works in a route handler on the preview. `.results` on the returned object is already a Python
+  list, so do not call `.to_py()` on it. The `WorkerEntrypoint` fallback is not needed.
 
 ## R3. Writing to D1 from Python
 
@@ -31,7 +32,10 @@ documentation and are checked during implementation (see [quickstart.md](./quick
 - **Decision (owner)**: a missing header, or a header whose value is `None`, is stored as NULL in
   the database. D1 rejects JavaScript `undefined`, so the Worker MUST pass an explicit JS `null`
   for these fields and must not rely on how a Python `None` converts.
-- **VERIFY**: the exact conversion call (for example `js.null`) works in the Python Workers runtime.
+- **Verified 2026-11-14 (T007)**: `from pyodide.ffi import jsnull` and `.bind(value, jsnull, ...)`
+  stores NULL on the preview. A plain Python `None` also stored NULL in the same test, but the
+  owner decision stands: pass `jsnull` explicitly so the behavior does not depend on an implicit
+  conversion.
 
 ## R4. CORS
 
@@ -91,3 +95,13 @@ documentation and are checked during implementation (see [quickstart.md](./quick
 - **Decision**: No test framework. The preview smoke test (health check, then POST expecting 204)
   and the quickstart are the verification.
 - **Rationale**: Constitution VI and the spec assumptions exclude unit and functional tests.
+
+## R10. Output of `cf d1 query` (verified 2026-11-14)
+
+- **Finding**: `cf d1 query <id> --sql ...` prints a JSON array with one object per statement. Each
+  object has `results` (the rows), `success`, and `meta`. It does not print a bare array of rows.
+- **Decision**: `scripts/query_db.py` flattens the `results` of every statement and prints only the
+  rows as one JSON array, as its spec requires. An empty table prints `[]`.
+- **Also verified**: a second run of `scripts/create_db.py` reports the database and `database_id`
+  already exist, re-applies `schema.sql` (a no-op because of `CREATE TABLE IF NOT EXISTS`), and
+  leaves `wrangler.jsonc` unchanged.

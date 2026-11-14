@@ -50,3 +50,12 @@ error description, and the source line, for example
 `ping_error step=db_insert error=D1_ERROR: no such table: ping line=57`. The step names are unique,
 so a log line identifies exactly which block failed.
 Nothing about the error appears in the response.
+
+| Step | Code it guards |
+|---|---|
+| `read_config` | Reading `ALLOWED_ORIGINS` from the Worker environment (middleware) |
+| `cors_origin` | Matching the `Origin` header and setting the CORS response headers (middleware) |
+| `read_headers` | Copying the request headers in `POST /api/v1/ping` |
+| `log_headers` | Writing every request header to the log as one JSON line |
+| `make_timestamp` | Building `received_at` |
+| `db_insert` | Reading the three headers and inserting the row into D1 |

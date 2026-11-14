@@ -1,12 +1,3 @@
-<!--
-Sync Impact Report (temporary, remove before commit)
-Version change: template (unversioned) -> 1.0.0 -> 1.1.0
-Modified principles: V (teardown scripts now apply to preview environments only; production has none)
-Added sections: Core Principles I-VI, File Conventions, Delivery Workflow, Governance
-Removed sections: none
-Deferred TODOs: none
--->
-
 # Andexor Ping Service Constitution
 
 ## Core Principles

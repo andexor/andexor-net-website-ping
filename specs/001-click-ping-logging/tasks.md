@@ -47,10 +47,10 @@ These come from constitution Principle IV and research R5. Do not skip them.
 **CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 Create `src/worker.py` with the SPDX header, a FastAPI `app`, and the entrypoint `Default = asgi.entrypoint(app)` (research R2). Read `ALLOWED_ORIGINS` from the Worker env inside its own inline try/except with step `read_config`.
-- [ ] T004 **Owner action, stop here.** Ask the owner to complete all of `MANUAL-TASKS.md` Step 1 now: it includes creating the preview Worker, which needs `src/worker.py` from T003. Claude must not create the preview Worker or run the pipeline to create it. Do not start T006 until the owner confirms Step 1 is done.
-- [ ] T005 After T004, run `uv run scripts/create_db.py` a second time and confirm it reports the database and `database_id` already exist and changes nothing. Run `uv run scripts/query_db.py --preview` and confirm it prints one JSON array of rows (the spec for the script). If the real `cf d1 query` output has a different shape, fix `scripts/query_db.py` to print only the rows, and record the real shape in `specs/001-click-ping-logging/research.md`.
-- [ ] T006 In `src/worker.py`, add a throwaway route that reads the D1 binding as `request.scope["env"].DB` and runs `SELECT 1 FROM ping`. Deploy it with `uv run pywrangler preview --name preview` and call it on the preview URL (the preview database already has the `ping` table from MANUAL-TASKS Step 1, and there is no local D1 to set up). If the binding is not reachable, switch to the `WorkerEntrypoint` class form with `await asgi.fetch(app, request, self.env)`. Record the working form in `specs/001-click-ping-logging/research.md` R2 and remove the throwaway route.
-- [ ] T007 In `src/worker.py`, find the call that passes an explicit JS `null` to `.bind()` for a missing value (for example `js.null`) and confirm D1 stores NULL, per research R3. Test it on the preview, using a throwaway route that inserts a row with a null value, and check the row with `uv run scripts/query_db.py --preview`. Delete the throwaway route and test row afterwards. Record the working call in `specs/001-click-ping-logging/research.md` R3.
+- [X] T004 **Owner action, stop here.** Ask the owner to complete all of `MANUAL-TASKS.md` Step 1 now: it includes creating the preview Worker, which needs `src/worker.py` from T003. Claude must not create the preview Worker or run the pipeline to create it. Do not start T006 until the owner confirms Step 1 is done.
+- [X] T005 After T004, run `uv run scripts/create_db.py` a second time and confirm it reports the database and `database_id` already exist and changes nothing. Run `uv run scripts/query_db.py --preview` and confirm it prints one JSON array of rows (the spec for the script). If the real `cf d1 query` output has a different shape, fix `scripts/query_db.py` to print only the rows, and record the real shape in `specs/001-click-ping-logging/research.md`.
+- [X] T006 In `src/worker.py`, add a throwaway route that reads the D1 binding as `request.scope["env"].DB` and runs `SELECT 1 FROM ping`. Deploy it with `uv run pywrangler preview --name preview` and call it on the preview URL (the preview database already has the `ping` table from MANUAL-TASKS Step 1, and there is no local D1 to set up). If the binding is not reachable, switch to the `WorkerEntrypoint` class form with `await asgi.fetch(app, request, self.env)`. Record the working form in `specs/001-click-ping-logging/research.md` R2 and remove the throwaway route.
+- [X] T007 In `src/worker.py`, find the call that passes an explicit JS `null` to `.bind()` for a missing value (for example `js.null`) and confirm D1 stores NULL, per research R3. Test it on the preview, using a throwaway route that inserts a row with a null value, and check the row with `uv run scripts/query_db.py --preview`. Delete the throwaway route and test row afterwards. Record the working call in `specs/001-click-ping-logging/research.md` R3.
 
 **Checkpoint**: The owner has done Step 1, the existing scripts are verified, the DB binding is reachable, and NULL handling is settled.
 
@@ -62,11 +62,11 @@ These come from constitution Principle IV and research R5. Do not skip them.
 
 **Independent Test**: quickstart scenarios 1, 3 and 4. One POST with `Referer`, `Ping-From`, `Ping-To` gives 204 with no body, one new row with all four fields filled, and one log line holding every header.
 
-- [ ] T008 [US1] In `src/worker.py`, add `POST /api/v1/ping` returning HTTP 204 with an empty body. Any request body is ignored.
-- [ ] T009 [US1] In `src/worker.py`, in the POST handler, read the request headers and write them to the log as one JSON line, `json.dumps(dict(request.headers), ensure_ascii=False)`, so no escape characters are added (FR-006). Use two separate inline try/except blocks: `read_headers` and `log_headers`.
-- [ ] T010 [US1] In `src/worker.py`, build `received_at` as the current UTC time in ISO 8601 with milliseconds and a `Z` suffix (research R7), inside its own inline try/except with step `make_timestamp`. The caller can never supply it.
-- [ ] T011 [US1] In `src/worker.py`, insert the row with `INSERT INTO ping (received_at, referer, ping_from, ping_to) VALUES (?, ?, ?, ?)` using bound parameters only, inside its own inline try/except with step `db_insert`. Data-model rules, quoted verbatim: "A header that is absent is stored as NULL", "A header that is present is stored exactly as received, with no trimming or validation", and "Identical rows are allowed". A missing header or a `None` value MUST be passed as an explicit JS `null` (T007).
-- [ ] T012 [US1] Apply `schema.sql` to the preview database with `./preview-create.sh`, deploy with `uv run pywrangler preview --name preview`, and run quickstart scenarios 1, 3 and 4. Confirm a second identical POST creates a second row and a POST with no `Ping-*` headers stores NULLs.
+- [X] T008 [US1] In `src/worker.py`, add `POST /api/v1/ping` returning HTTP 204 with an empty body. Any request body is ignored.
+- [X] T009 [US1] In `src/worker.py`, in the POST handler, read the request headers and write them to the log as one JSON line, `json.dumps(dict(request.headers), ensure_ascii=False)`, so no escape characters are added (FR-006). Use two separate inline try/except blocks: `read_headers` and `log_headers`.
+- [X] T010 [US1] In `src/worker.py`, build `received_at` as the current UTC time in ISO 8601 with milliseconds and a `Z` suffix (research R7), inside its own inline try/except with step `make_timestamp`. The caller can never supply it.
+- [X] T011 [US1] In `src/worker.py`, insert the row with `INSERT INTO ping (received_at, referer, ping_from, ping_to) VALUES (?, ?, ?, ?)` using bound parameters only, inside its own inline try/except with step `db_insert`. Data-model rules, quoted verbatim: "A header that is absent is stored as NULL", "A header that is present is stored exactly as received, with no trimming or validation", and "Identical rows are allowed". A missing header or a `None` value MUST be passed as an explicit JS `null` (T007).
+- [X] T012 [US1] Apply `schema.sql` to the preview database with `./preview-create.sh`, deploy with `uv run pywrangler preview --name preview`, and run quickstart scenarios 1, 3 and 4. Confirm a second identical POST creates a second row and a POST with no `Ping-*` headers stores NULLs.
 
 **Checkpoint**: User Story 1 works on its own. This is the MVP.
 
@@ -78,9 +78,9 @@ These come from constitution Principle IV and research R5. Do not skip them.
 
 **Independent Test**: quickstart scenario 5. A preflight from the website origin gets 204 with that origin echoed. An unlisted origin gets the first listed origin.
 
-- [ ] T013 [US2] In `src/worker.py`, add `OPTIONS /api/v1/ping` returning HTTP 204 with no body (FR-007).
-- [ ] T014 [US2] In `src/worker.py`, add a middleware that sets CORS headers on every response (research R4, not `CORSMiddleware`): `Access-Control-Allow-Origin` is the request `Origin` if it is in `ALLOWED_ORIGINS`, otherwise the first entry; `Access-Control-Allow-Methods: POST, OPTIONS`; `Access-Control-Allow-Headers: Content-Type`; `Vary: Origin`. The origin matching and header setting are in their own inline try/except with step `cors_origin`. The middleware does not log errors for other steps.
-- [ ] T015 [US2] Run quickstart scenario 5 against the preview and confirm the echoed origin, the fallback origin, and the `Vary: Origin` header.
+- [X] T013 [US2] In `src/worker.py`, add `OPTIONS /api/v1/ping` returning HTTP 204 with no body (FR-007).
+- [X] T014 [US2] In `src/worker.py`, add a middleware that sets CORS headers on every response (research R4, not `CORSMiddleware`): `Access-Control-Allow-Origin` is the request `Origin` if it is in `ALLOWED_ORIGINS`, otherwise the first entry; `Access-Control-Allow-Methods: POST, OPTIONS`; `Access-Control-Allow-Headers: Content-Type`; `Vary: Origin`. The origin matching and header setting are in their own inline try/except with step `cors_origin`. The middleware does not log errors for other steps.
+- [X] T015 [US2] Run quickstart scenario 5 against the preview and confirm the echoed origin, the fallback origin, and the `Vary: Origin` header.
 
 ---
 
@@ -90,8 +90,8 @@ These come from constitution Principle IV and research R5. Do not skip them.
 
 **Independent Test**: quickstart scenario 2. 200 with `{"ok": true}`, even when the database is unavailable.
 
-- [ ] T016 [US3] In `src/worker.py`, add `GET /api/v1/ping/health` returning 200 with `{"ok": true}`. It MUST NOT touch D1 or any other dependency (FR-010), so it has no database code and needs no try/except.
-- [ ] T017 [US3] Run quickstart scenario 2 against the preview. Confirm the handler contains no database call.
+- [X] T016 [US3] In `src/worker.py`, add `GET /api/v1/ping/health` returning 200 with `{"ok": true}`. It MUST NOT touch D1 or any other dependency (FR-010), so it has no database code and needs no try/except.
+- [X] T017 [US3] Run quickstart scenario 2 against the preview. Confirm the handler contains no database call.
 
 ---
 
@@ -101,8 +101,8 @@ These come from constitution Principle IV and research R5. Do not skip them.
 
 **Independent Test**: quickstart scenario 6. A forced insert failure returns 500 with `{"ok": false}` and one log line naming `db_insert` and its line.
 
-- [ ] T018 [US4] In `src/worker.py`, audit the whole file: every statement that can raise is inside its own inline try/except with a unique step name, each `except` logs `ping_error step=<step> error=<ErrorName>: <description> line=<n>` and returns 500 `{"ok": false}`, and there is no catch-all, shared helper, or `exception_handler`. Step names: `read_config`, `read_headers`, `log_headers`, `make_timestamp`, `db_insert`, `cors_origin`. Add any step that is missing.
-- [ ] T019 [US4] In `specs/001-click-ping-logging/contracts/http-api.md`, list the step names from T018 under "Error logging", each with the code it guards.
+- [X] T018 [US4] In `src/worker.py`, audit the whole file: every statement that can raise is inside its own inline try/except with a unique step name, each `except` logs `ping_error step=<step> error=<ErrorName>: <description> line=<n>` and returns 500 `{"ok": false}`, and there is no catch-all, shared helper, or `exception_handler`. Step names: `read_config`, `read_headers`, `log_headers`, `make_timestamp`, `db_insert`, `cors_origin`. Add any step that is missing.
+- [X] T019 [US4] In `specs/001-click-ping-logging/contracts/http-api.md`, list the step names from T018 under "Error logging", each with the code it guards.
 - [ ] T020 [US4] Run quickstart scenario 6 on the preview: rename the table in the insert, redeploy, POST, and confirm a 500 with `{"ok": false}` and a `db_insert` log line with the correct line number. Then force a second, different failure in another step and confirm its log line shows a different step and line. Revert both.
 
 ---

@@ -58,3 +58,6 @@ Thumbs.db
 
 # Claude
 .claude/
+
+# Cloudflare CLI cache
+.cloudflare/
