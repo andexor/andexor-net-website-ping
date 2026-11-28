@@ -7,7 +7,7 @@ name = "andexor-net-website-ping"
 version = "1.0.0"
 requires-python = ">=3.14"
 dependencies = [
-    "fastapi<0.163",
+    "fastapi<0.166",
     "pip-licenses>=5.5.5",
     "python-multipart",
 ]
